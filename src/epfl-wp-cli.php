@@ -7,7 +7,7 @@
  * @version 1.0.0
  */
 
-namespace EPFL_WPCLI;
+namespace EPFL_WP_CLI;
 
 if ( version_compare( PHP_VERSION, '5.5', '<' ) ) {
     \WP_CLI::error( sprintf( 'This WP-CLI package requires PHP version %s or higher.', '5.5' ) );
@@ -36,7 +36,6 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
             /* If an URL or a ZIP file has been given, we can't handle it so we call parent method */
             if(preg_match('/(^http|\.zip$)/', $plugin_name)==1)
             {
-                /* Calling parent fuction to process to installation */
                 parent::install($args, $assoc_args);
                 return;
             }
@@ -93,4 +92,4 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 }
 
 /* We override existing commands with extended one */
-\WP_CLI::add_command( 'plugin', 'EPFL_WPCLI\EPFL_Plugin_Command' );
+\WP_CLI::add_command( 'plugin', 'EPFL_WP_CLI\EPFL_Plugin_Command' );
