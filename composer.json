@@ -1,0 +1,26 @@
+{
+    "name": "epfl-idevelop/wp-cli",
+    "description": "An extension to existing WPCLI commands to fit EPFL's needs",
+    "type": "wp-cli-package",
+    "homepage": "https://github.com/epfli-develop/wp-cli",
+    "support": {
+        "issues": "https://github.com/epfl-idevelop/wp-cli/issues"
+    },
+    "require": {
+       "wp-cli/wp-cli": "~1.5.0",
+       "wp-cli/extension-command": "^1.1 || ^2"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lucien Chaboudez",
+            "email": "lucien.chaboudez@epfl.ch"
+        }
+    ],
+  "autoload": {
+    "files": [ "src/epfl-wp-cli.php" ]
+  },
+    "require-dev": {
+        "behat/behat": "~2.5"
+    }
+}
