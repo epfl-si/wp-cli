@@ -50,7 +50,6 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
                 /* If plugin is available in WP image */
                 $wp_image_plugin_folder = $this->PLUGIN_FOLDER . $plugin_name;
-                /* TODO: improve this to check PHP headers instead of folder/file name */
                 if(file_exists($wp_image_plugin_folder))
                 {
                     /* Creating symlink to "simulate" plugin installation */
