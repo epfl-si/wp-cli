@@ -20,3 +20,4 @@ if ( version_compare( WP_CLI_VERSION, '1.5.0', '<' ) ) {
 
 require_once("EPFL_Plugin_Command.php");
 require_once("EPFL_Theme_Command.php");
+require_once("EPFL_Core_Command.php");
