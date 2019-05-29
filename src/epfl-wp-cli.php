@@ -18,6 +18,9 @@ if ( version_compare( WP_CLI_VERSION, '1.5.0', '<' ) ) {
     WP_CLI::error( sprintf( 'This WP-CLI package requires WP-CLI version %s or higher. Please visit %s', '1.5.0', 'https://wp-cli.org/#updating' ) );
 }
 
+
+define('EPFL_WP_IMAGE_PATH', '/wp/');
+
 require_once("EPFL_Plugin_Command.php");
 require_once("EPFL_Theme_Command.php");
 require_once("EPFL_Core_Command.php");

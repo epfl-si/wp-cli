@@ -12,7 +12,7 @@ namespace EPFL_WP_CLI;
  */
 class EPFL_Theme_Command extends \Theme_Command  {
 
-    var $THEME_FOLDER = "/wp/wp-content/themes/";
+    var $THEME_FOLDER = EPFL_WP_IMAGE_PATH."wp-content/themes/";
 
    /**
 	 * Installs one or more themes.

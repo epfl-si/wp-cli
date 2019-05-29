@@ -11,7 +11,7 @@ namespace EPFL_WP_CLI;
  */
 class EPFL_Plugin_Command extends \Plugin_Command  {
 
-    var $PLUGIN_FOLDER = "/wp/wp-content/plugins/";
+    var $PLUGIN_FOLDER = EPFL_WP_IMAGE_PATH."wp-content/plugins/";
 
     /**
 	 * Installs one or more plugins.
