@@ -105,10 +105,10 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
             if(is_remote_package($plugin_name) || is_zip_package($plugin_name))
             {
 
-                $extracted_plugin_name = extract_plugin_name($plugin_name);
+                $extracted_plugin_name = extract_name_from_package($plugin_name);
 
                 /* If plugin is available in WP image AND is not in the "don't use" list */
-                if($this->plugin_exists_in_image($extracted_plugin_name) &&
+                if($this->exists_in_image($extracted_plugin_name) &&
                    !in_array($extracted_plugin_name, $this->DONT_USE_VERSION_FROM_IMAGE))
                 {
                     /* We change URL by plugin short name so it will installed as symlink below */
@@ -132,7 +132,7 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
                 $wp_image_plugin_folder = $this->PLUGIN_FOLDER . $plugin_name;
 
                 /* If plugin is available in WP image */
-                if($this->plugin_exists_in_image($plugin_name))
+                if($this->exists_in_image($plugin_name))
                 {
                     /* Creating symlink to "simulate" plugin installation */
                     if(symlink($wp_image_plugin_folder, ABSPATH . 'wp-content/plugins/'. $plugin_name))
@@ -173,7 +173,7 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
 
     /* Tells if a given plugin exists in WordPress image */
-    private function plugin_exists_in_image($plugin_name)
+    private function exists_in_image($plugin_name)
     {
         return file_exists($this->PLUGIN_FOLDER . $plugin_name);
     }

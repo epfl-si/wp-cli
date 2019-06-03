@@ -35,9 +35,9 @@ function is_zip_package($package)
     return pathinfo( $package, PATHINFO_EXTENSION ) === 'zip' && is_file( $package );
 }
 
-/* Extracts plugin name from a ZIP package (URL or local file).
+/* Extracts plugin or theme name from a ZIP package (URL or local file).
  We take only what's before the first "." in the filename */
-function extract_plugin_name($package)
+function extract_name_from_package($package)
 {
     return preg_replace("/(\..+)+/", "", basename($package));
 }

@@ -58,10 +58,22 @@ class EPFL_Theme_Command extends \Theme_Command  {
         {
 
             /* If an URL or a ZIP file has been given, we can't handle it so we call parent method */
-            if(preg_match('/(^http|\.zip$)/', $theme_name)==1)
+            if(is_remote_package($plugin_name) || is_zip_package($plugin_name))
             {
-                parent::install($args, $assoc_args);
-                return;
+
+                $extracted_theme_name = extract_name_from_package($theme_name);
+
+                /* If theme is available in WP image AND is not in the "don't use" list */
+                if($this->exists_in_image($extracted_theme_name))
+                {
+                    /* We change URL by theme short name so it will installed as symlink below */
+                    $theme_name = $extracted_theme_name;
+                }
+                else
+                {
+                    parent::install($args, $assoc_args);
+                    return;
+                }
             }
 
             /* Looking if theme is already installed. We cannot call "parent::is_installed()" because
@@ -73,9 +85,10 @@ class EPFL_Theme_Command extends \Theme_Command  {
             {
 
                 /* If theme is available in WP image */
-                $wp_image_theme_folder = $this->THEME_FOLDER . $theme_name;
-                if(file_exists($wp_image_theme_folder))
+                if($this->exists_in_image($theme_name))
                 {
+                    $wp_image_theme_folder = $this->THEME_FOLDER . $theme_name;
+
                     /* Creating symlink to "simulate" theme installation */
                     if(symlink($wp_image_theme_folder, ABSPATH . 'wp-content/themes/'. $theme_name))
                     {
@@ -193,6 +206,12 @@ class EPFL_Theme_Command extends \Theme_Command  {
             }
         } /* END looping through given themes */
 
+    }
+
+    /* Tells if a given theme exists in WordPress image */
+    private function exists_in_image($theme_name)
+    {
+        return file_exists($this->THEME_FOLDER . $theme_name);
     }
 }
 
