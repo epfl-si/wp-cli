@@ -7,6 +7,8 @@
  * @version 1.0.0
  */
 
+namespace EPFL_WP_CLI;
+
 if ( ! class_exists( 'WP_CLI' ) ) {
 	return;
 }
@@ -21,6 +23,27 @@ if ( version_compare( WP_CLI_VERSION, '1.5.0', '<' ) ) {
 
 define('EPFL_WP_IMAGE_PATH', '/wp/');
 
+/* To tell if package is remote */
+function is_remote_package($package)
+{
+    return (false !== strpos( $package, '://' ));
+}
+
+/* To tell if package is a ZIP */
+function is_zip_package($package)
+{
+    return pathinfo( $package, PATHINFO_EXTENSION ) === 'zip' && is_file( $package );
+}
+
+/* Extracts plugin name from a ZIP package (URL or local file).
+ We take only what's before the first "." in the filename */
+function extract_plugin_name($package)
+{
+    return preg_replace("/(\..+)+/", "", basename($package));
+}
+
+
+/* Including classes which overrides existing commands */
 require_once("EPFL_Plugin_Command.php");
 require_once("EPFL_Theme_Command.php");
 require_once("EPFL_Core_Command.php");

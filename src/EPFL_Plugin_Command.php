@@ -13,6 +13,9 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
     var $PLUGIN_FOLDER = EPFL_WP_IMAGE_PATH."wp-content/plugins/";
 
+    /* Some plugins may be available in image but we have to install them from WordPress repo instead */
+    var $DONT_USE_VERSION_FROM_IMAGE = array("polylang");
+
     /**
 	 * Installs one or more plugins.
 	 *
@@ -97,11 +100,25 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
         /* Looping through plugins to install */
         foreach($args as $plugin_name)
         {
+
             /* If an URL or a ZIP file has been given, we can't handle it so we call parent method */
-            if(preg_match('/(^http|\.zip$)/', $plugin_name)==1)
+            if(is_remote_package($plugin_name) || is_zip_package($plugin_name))
             {
-                parent::install($args, $assoc_args);
-                return;
+
+                $extracted_plugin_name = extract_plugin_name($plugin_name);
+
+                /* If plugin is available in WP image AND is not in the "don't use" list */
+                if($this->plugin_exists_in_image($extracted_plugin_name) &&
+                   !in_array($extracted_plugin_name, $this->DONT_USE_VERSION_FROM_IMAGE))
+                {
+                    /* We change URL by plugin short name so it will installed as symlink below */
+                    $plugin_name = $extracted_plugin_name;
+                }
+                else
+                {
+                    parent::install($args, $assoc_args);
+                    return;
+                }
             }
 
             /* Looking if plugin is already installed. We cannot call "parent::is_installed()" because
@@ -112,9 +129,10 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
             if($response->return_code == 1)
             {
 
-                /* If plugin is available in WP image */
                 $wp_image_plugin_folder = $this->PLUGIN_FOLDER . $plugin_name;
-                if(file_exists($wp_image_plugin_folder))
+
+                /* If plugin is available in WP image */
+                if($this->plugin_exists_in_image($plugin_name))
                 {
                     /* Creating symlink to "simulate" plugin installation */
                     if(symlink($wp_image_plugin_folder, ABSPATH . 'wp-content/plugins/'. $plugin_name))
@@ -151,6 +169,13 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
             }
 
         } /* END looping through given plugins */
+    }
+
+
+    /* Tells if a given plugin exists in WordPress image */
+    private function plugin_exists_in_image($plugin_name)
+    {
+        return file_exists($this->PLUGIN_FOLDER . $plugin_name);
     }
 }
 
