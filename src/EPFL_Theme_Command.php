@@ -58,7 +58,7 @@ class EPFL_Theme_Command extends \Theme_Command  {
         {
 
             /* If an URL or a ZIP file has been given, we can't handle it so we call parent method */
-            if(is_remote_package($plugin_name) || is_zip_package($plugin_name))
+            if(is_remote_package($theme_name) || is_zip_package($theme_name))
             {
 
                 $extracted_theme_name = extract_name_from_package($theme_name);
