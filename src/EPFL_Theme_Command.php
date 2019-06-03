@@ -12,8 +12,6 @@ namespace EPFL_WP_CLI;
  */
 class EPFL_Theme_Command extends \Theme_Command  {
 
-    var $THEME_FOLDER = EPFL_WP_IMAGE_PATH."wp-content/themes/";
-
    /**
 	 * Installs one or more themes.
 	 *
@@ -64,7 +62,7 @@ class EPFL_Theme_Command extends \Theme_Command  {
                 $extracted_theme_name = extract_name_from_package($theme_name);
 
                 /* If theme is available in WP image AND is not in the "don't use" list */
-                if($this->exists_in_image($extracted_theme_name))
+                if(path_in_image('themes', $extracted_theme_name) !== false)
                 {
                     /* We change URL by theme short name so it will installed as symlink below */
                     $theme_name = $extracted_theme_name;
@@ -85,10 +83,8 @@ class EPFL_Theme_Command extends \Theme_Command  {
             {
 
                 /* If theme is available in WP image */
-                if($this->exists_in_image($theme_name))
+                if(($wp_image_theme_folder = path_in_image('themes', $theme_name)) !== false)
                 {
-                    $wp_image_theme_folder = $this->THEME_FOLDER . $theme_name;
-
                     /* Creating symlink to "simulate" theme installation */
                     if(symlink($wp_image_theme_folder, ABSPATH . 'wp-content/themes/'. $theme_name))
                     {
@@ -208,11 +204,6 @@ class EPFL_Theme_Command extends \Theme_Command  {
 
     }
 
-    /* Tells if a given theme exists in WordPress image */
-    private function exists_in_image($theme_name)
-    {
-        return file_exists($this->THEME_FOLDER . $theme_name);
-    }
 }
 
 /* We override existing commands with extended one */

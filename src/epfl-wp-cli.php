@@ -21,25 +21,52 @@ if ( version_compare( WP_CLI_VERSION, '1.5.0', '<' ) ) {
 }
 
 
-define('EPFL_WP_IMAGE_PATH', '/wp/');
+define('EPFL_WP_IMAGE_WP_CONTENT_PATH', '/wp/wp-content/');
 
-/* To tell if package is remote */
+/**
+  * To tell if package is remote
+  *
+  * PARAM : $package -> full path to package (URL, local path)
+  */
 function is_remote_package($package)
 {
     return (false !== strpos( $package, '://' ));
 }
 
-/* To tell if package is a ZIP */
+
+/**
+  * To tell if package is a ZIP
+  *
+  * PARAM : $package -> full path to package (URL, local path)
+  */
 function is_zip_package($package)
 {
     return pathinfo( $package, PATHINFO_EXTENSION ) === 'zip' && is_file( $package );
 }
 
-/* Extracts plugin or theme name from a ZIP package (URL or local file).
- We take only what's before the first "." in the filename */
+
+/**
+  * Extracts plugin or theme name from a ZIP package (URL or local file).
+  * We take only what's before the first "." in the filename
+  *
+  * PARAM : $package -> full path to package (URL, local path)
+  */
 function extract_name_from_package($package)
 {
     return preg_replace("/(\..+)+/", "", basename($package));
+}
+
+
+/**
+  * Returns element path in WordPress image (if exists). Otherwise, returns FALSE
+  *
+  * PARAMS : $wp_content_relative_folder -> path relative to "wp-content" WordPress folder to look into for $element
+  *          $element                    -> element to look into in $wp_content_relative_folder folder
+  */
+function path_in_image($wp_content_relative_folder, $element)
+{
+    $path = EPFL_WP_IMAGE_WP_CONTENT_PATH. $wp_content_relative_folder ."/" . $element;
+    return file_exists($path)?$path:false;
 }
 
 
@@ -47,3 +74,6 @@ function extract_name_from_package($package)
 require_once("EPFL_Plugin_Command.php");
 require_once("EPFL_Theme_Command.php");
 require_once("EPFL_Core_Command.php");
+
+/* Adding new command to install mu-plugins */
+require_once("EPFL_MUPlugin_Command.php");
