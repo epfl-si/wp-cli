@@ -9,86 +9,71 @@
 
 namespace EPFL_WP_CLI;
 
+if ( ! class_exists( 'WP_CLI' ) ) {
+	return;
+}
+
 if ( version_compare( PHP_VERSION, '5.5', '<' ) ) {
-    \WP_CLI::error( sprintf( 'This WP-CLI package requires PHP version %s or higher.', '5.5' ) );
+    WP_CLI::error( sprintf( 'This WP-CLI package requires PHP version %s or higher.', '5.5' ) );
 }
 if ( version_compare( WP_CLI_VERSION, '1.5.0', '<' ) ) {
-    \WP_CLI::error( sprintf( 'This WP-CLI package requires WP-CLI version %s or higher. Please visit %s', '1.5.0', 'https://wp-cli.org/#updating' ) );
+    WP_CLI::error( sprintf( 'This WP-CLI package requires WP-CLI version %s or higher. Please visit %s', '1.5.0', 'https://wp-cli.org/#updating' ) );
 }
+
+
+define('EPFL_WP_IMAGE_WP_CONTENT_PATH', '/wp/wp-content/');
 
 /**
- * Manage plugin installation with symlinks
- *
- * Parent class can be found here:
- * https://github.com/wp-cli/extension-command/blob/master/src/Plugin_Command.php
- *
- */
-class EPFL_Plugin_Command extends \Plugin_Command  {
-
-    var $PLUGIN_FOLDER = "/wp/wp-content/plugins/";
-
-    /* Override existing install function*/
-    public function install( $args, $assoc_args ) {
-
-        /* Looping through plugins to install */
-        foreach($args as $plugin_name)
-        {
-            /* If an URL or a ZIP file has been given, we can't handle it so we call parent method */
-            if(preg_match('/(^http|\.zip$)/', $plugin_name)==1)
-            {
-                parent::install($args, $assoc_args);
-                return;
-            }
-
-            /* Looking if plugin is already installed. We cannot call "parent::is_installed()" because
-             it just halts process with 1 or 0 to tell plugin installation status... */
-            $response = \WP_CLI::launch_self( 'plugin is-installed', array($plugin_name), array(), false, true );
-
-            /* If plugin is not installed */
-            if($response->return_code == 1)
-            {
-
-                /* If plugin is available in WP image */
-                $wp_image_plugin_folder = $this->PLUGIN_FOLDER . $plugin_name;
-                if(file_exists($wp_image_plugin_folder))
-                {
-                    /* Creating symlink to "simulate" plugin installation */
-                    if(symlink($wp_image_plugin_folder, ABSPATH . 'wp-content/plugins/'. $plugin_name))
-                    {
-                        \WP_CLI::success("Symlink created for ".$plugin_name);
-
-                        /* If extra args were given (like --activate) */
-                        if(sizeof($assoc_args)>0)
-                        {
-                            /* They cannot be handled here because when we create symlink, WP DB is not updated to
-                            say "hey, plugin is installed" so we will get an error when trying to do another action (ie: --activate)
-                            because WordPress believe plugin isn't installed */
-                            \WP_CLI::warning("Extra args (starting with --) are not handled with symlinked plugins, please call specific WPCLI command(s)");
-                        }
-                    }
-                    else /* Error */
-                    {
-                        /* We display an error and exit */
-                        \WP_CLI::error("Error creating symlink for ".$plugin_name, true);
-                    }
-
-                }
-                else /* Plugin is not found in WP image  */
-                {
-                    \WP_CLI::log("No plugin found to create symlink for ". $plugin_name.". Installing it...");
-                    parent::install(array($plugin_name), $assoc_args);
-                }
-
-            }
-            else /* Plugin is already installed */
-            {
-                /* We call parent function to do remaining things if needed*/
-                parent::install(array($plugin_name), $assoc_args);
-            }
-
-        } /* END looping through given plugins */
-    }
+  * To tell if package is remote
+  *
+  * PARAM : $package -> full path to package (URL, local path)
+  */
+function is_remote_package($package)
+{
+    return (false !== strpos( $package, '://' ));
 }
 
-/* We override existing commands with extended one */
-\WP_CLI::add_command( 'plugin', 'EPFL_WP_CLI\EPFL_Plugin_Command' );
+
+/**
+  * To tell if package is a ZIP
+  *
+  * PARAM : $package -> full path to package (URL, local path)
+  */
+function is_zip_package($package)
+{
+    return pathinfo( $package, PATHINFO_EXTENSION ) === 'zip' && is_file( $package );
+}
+
+
+/**
+  * Extract plugin or theme name from a ZIP package (URL or local file).
+  * We take only what's before the first "." in the filename
+  *
+  * PARAM : $package -> full path to package (URL, local path)
+  */
+function extract_name_from_package($package)
+{
+    return preg_replace("/(\..+)+/", "", basename($package));
+}
+
+
+/**
+  * Return element path in WordPress image (if exists). Otherwise, returns FALSE
+  *
+  * PARAMS : $wp_content_relative_folder -> path relative to "wp-content" WordPress folder to look into for $element
+  *          $element                    -> element to look into in $wp_content_relative_folder folder
+  */
+function path_in_image($wp_content_relative_folder, $element)
+{
+    $path = EPFL_WP_IMAGE_WP_CONTENT_PATH. $wp_content_relative_folder ."/" . $element;
+    return file_exists($path)?$path:false;
+}
+
+
+/* Including classes which overrides existing commands */
+require_once("EPFL_Plugin_Command.php");
+require_once("EPFL_Theme_Command.php");
+require_once("EPFL_Core_Command.php");
+
+/* Adding new command to install mu-plugins */
+require_once("EPFL_MUPlugin_Command.php");
