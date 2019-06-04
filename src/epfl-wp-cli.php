@@ -46,7 +46,7 @@ function is_zip_package($package)
 
 
 /**
-  * Extracts plugin or theme name from a ZIP package (URL or local file).
+  * Extract plugin or theme name from a ZIP package (URL or local file).
   * We take only what's before the first "." in the filename
   *
   * PARAM : $package -> full path to package (URL, local path)
@@ -58,7 +58,7 @@ function extract_name_from_package($package)
 
 
 /**
-  * Returns element path in WordPress image (if exists). Otherwise, returns FALSE
+  * Return element path in WordPress image (if exists). Otherwise, returns FALSE
   *
   * PARAMS : $wp_content_relative_folder -> path relative to "wp-content" WordPress folder to look into for $element
   *          $element                    -> element to look into in $wp_content_relative_folder folder

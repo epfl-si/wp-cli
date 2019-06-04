@@ -13,7 +13,7 @@ namespace EPFL_WP_CLI;
 class EPFL_Theme_Command extends \Theme_Command  {
 
    /**
-	 * Installs one or more themes.
+	 * Install one or more themes.
 	 *
 	 * ## OPTIONS
 	 *
@@ -125,7 +125,7 @@ class EPFL_Theme_Command extends \Theme_Command  {
 
 
     /**
-	 * Deletes one or more themes.
+	 * Delete one or more themes.
 	 *
 	 * Removes the theme or themes from the filesystem.
 	 *

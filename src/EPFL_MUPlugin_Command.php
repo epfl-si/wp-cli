@@ -41,7 +41,7 @@ class EPFL_MUPlugin_Command  {
     }
 
     /**
-     * Installs a mu-plugin element (file/folder). Create a symlink if in WordPress image or copy from source
+     * Install a mu-plugin element (file/folder). Create a symlink if in WordPress image or copy from source
      *
      * Params  : $file_or_folder_path -> path to a file/folder we want to install (create symlink or copy it)
      *
@@ -105,7 +105,7 @@ class EPFL_MUPlugin_Command  {
 
 
     /**
-	 * Installs one or more mu-plugins.
+	 * Install one or more mu-plugins.
 	 *
 	 * ## OPTIONS
 	 *

@@ -15,7 +15,7 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
     var $DONT_USE_VERSION_FROM_IMAGE = array("polylang");
 
     /**
-	 * Installs one or more plugins.
+	 * Install one or more plugins.
 	 *
 	 * ## OPTIONS
 	 *
