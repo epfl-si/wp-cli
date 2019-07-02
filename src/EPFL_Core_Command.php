@@ -84,7 +84,7 @@ class EPFL_Core_Command extends \Core_Command   {
         {
             if(!unlink($path))
             {
-                \WP_CLI::error("Cannot delete '".$path."'", true);
+                \WP_CLI::warning("Cannot delete '".$path."'", true);
             }
         }
         else /* We have to delete a directory */
