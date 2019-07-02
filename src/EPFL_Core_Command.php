@@ -169,46 +169,8 @@ class EPFL_Core_Command extends \Core_Command   {
         /* If install has been correctly done and WordPress image is present,  */
         if(is_blog_installed() && file_exists(EPFL_WP_IMAGE_PATH))
         {
-            $to_symlink = array(
-                /* Files */
-                "wp-cron.php",
-                "wp-load.php",
-                "wp-login.php",
-                "wp-settings.php",
-                /* Folders*/
-                "wp-includes"
-                );
-
-
             /****** 1. Symlinks creation ******/
-
-            \WP_CLI::debug("---- Creating symlinks ----");
-
-
-            foreach($to_symlink as $symlink)
-            {
-                $site_element       = ABSPATH. $symlink;
-                $image_element      = EPFL_WP_IMAGE_PATH.$symlink;
-
-                \WP_CLI::debug("Processing $site_element -> $image_element");
-
-                if(!file_exists($image_element))
-                {
-                    \WP_CLI::warning("Image element doesn't exists (".$image_element."), skipping site symlink procedure", true);
-
-                    return;
-                }
-
-                /* We rename file/folder if requested, or delete it */
-                $this->delete_or_copy_original_file_folder($site_element, true);
-
-                if(!symlink($image_element, $site_element))
-                {
-                    \WP_CLI::error("Cannot create symlink from '".$site_element."' to '".$image_element."'", true);
-                }
-
-            }
-
+            $this->symlink();
 
             /****** 2. Files modifications  ******/
 
@@ -234,8 +196,56 @@ class EPFL_Core_Command extends \Core_Command   {
                                              "table_prefix = 'wp_';\n".
                                              "define('WP_CONTENT_DIR', '".ABSPATH."wp-content');", $wp_config_content);
             $this->update_file_content($wp_config, $wp_config_content);
+        }
+    }
+
+    /**
+     * Make symlinks to /wp if available.
+     *
+     * Note: If the current directory doesn't contain a wp-config.php file, then --path flag must be used.
+     *
+     * EXAMPLES
+     *
+     * wp --path=$PWD core symlink
+     *
+     * @when before_wp_load
+     */
+    public function symlink ($args, $assoc_args) {
+        $to_symlink = array(
+                /* Files */
+                "wp-cron.php",
+                "wp-load.php",
+                "wp-login.php",
+                "wp-settings.php",
+                /* Folders*/
+                "wp-includes"
+                );
 
 
+        \WP_CLI::debug("---- Creating symlinks ----");
+
+
+        foreach($to_symlink as $symlink)
+        {
+            $site_element       = ABSPATH. $symlink;
+            $image_element      = EPFL_WP_IMAGE_PATH.$symlink;
+
+            \WP_CLI::debug("Processing $site_element -> $image_element");
+
+            if(!file_exists($image_element))
+            {
+                \WP_CLI::warning("Image element doesn't exists (".$image_element."), skipping site symlink procedure", true);
+
+                return;
+            }
+
+            /* We rename file/folder if requested, or delete it */
+            $this->delete_or_copy_original_file_folder($site_element, true);
+
+            if(!symlink($image_element, $site_element))
+            {
+                \WP_CLI::error("Cannot create symlink from '".$site_element."' to '".$image_element."'", true);
+            }
         }
     }
 }
