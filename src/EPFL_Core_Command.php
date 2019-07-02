@@ -2,6 +2,7 @@
 
 namespace EPFL_WP_CLI;
 
+define("EPFL_WP_IMAGE_PATH", "/wp/");
 
 /**
  * Manage WordPress Core installation with symlinks
