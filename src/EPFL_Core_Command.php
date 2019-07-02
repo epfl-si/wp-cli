@@ -11,8 +11,7 @@ define("EPFL_WP_IMAGE_PATH", "/wp/");
  * https://github.com/wp-cli/core-command/blob/master/src/Core_Command.php
  *
  */
-class EPFL_Core_Command extends \Core_Command   {
-
+class EPFL_Core_Command extends \Core_Command {
     /* If enabled, we'll keep a copy of original files/folders */
     var $DEBUG = false;
     var $ORIGINAL_FILES_FOLDERS_SUFFIX = "_old";
@@ -204,9 +203,9 @@ class EPFL_Core_Command extends \Core_Command   {
      *
      * Note: If the current directory doesn't contain a wp-config.php file, then --path flag must be used.
      *
-     * EXAMPLES
+     * ## EXAMPLES
      *
-     * wp --path=$PWD core symlink
+     *     wp --path=$PWD core symlink
      *
      * @when before_wp_load
      */
