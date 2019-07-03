@@ -209,7 +209,7 @@ class EPFL_Core_Command extends \Core_Command {
      *
      * @when before_wp_load
      */
-    public function symlink ($args, $assoc_args) {
+    public function symlink ($args = array(), $assoc_args = array()) {
         $to_symlink = array(
                 /* Files */
                 "wp-cron.php",
