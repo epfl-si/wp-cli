@@ -133,6 +133,10 @@ class EPFL_Core_Command extends \Core_Command {
 	 *
 	 * ## OPTIONS
 	 *
+     * [--nosymlink]
+	 * : If set, plugin is installed by copying/downloading files instead of creating a symlink 
+	 * if exists in WP image
+     * 
 	 * --url=<url>
 	 * : The address of the new site.
 	 *
@@ -162,11 +166,23 @@ class EPFL_Core_Command extends \Core_Command {
 	 */
     public function install( $args, $assoc_args ) {
 
+        $no_symlink = false;
+		
+        if(array_key_exists('nosymlink', $assoc_args))
+        {
+            $no_symlink = true;
+
+            /* We remove param to avoid errors when calling parent func */
+            unset($assoc_args['nosymlink']);
+        }
+        
         /* We first call parent install function to proceed to basic install */
         parent::install($args, $assoc_args);
 
-        /* If install has been correctly done and WordPress image is present,  */
-        if(is_blog_installed() && file_exists(EPFL_WP_IMAGE_PATH))
+        /* If install has been correctly done 
+        AND we can use symlinks 
+        AND WordPress image is present,  */
+        if(is_blog_installed() && !$no_symlink && file_exists(EPFL_WP_IMAGE_PATH))
         {
             /****** 1. Symlinks creation ******/
             $this->symlink();
