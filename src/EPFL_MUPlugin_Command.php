@@ -44,6 +44,7 @@ class EPFL_MUPlugin_Command  {
      * Install a mu-plugin element (file/folder). Create a symlink if in WordPress image or copy from source
      *
      * Params  : $file_or_folder_path -> path to a file/folder we want to install (create symlink or copy it)
+     *           $no_symlink -> true|false to tell if we can use symlinks or not
      *
      *
      * Returns : TRUE  => Symlink created (or already existing)
@@ -52,7 +53,7 @@ class EPFL_MUPlugin_Command  {
      *           In case of error, func will exit
      *
      */
-    private function install_element($file_or_folder_path)
+    private function install_element($file_or_folder_path, $no_symlink)
     {
         $file_or_folder = basename($file_or_folder_path);
 
@@ -63,8 +64,9 @@ class EPFL_MUPlugin_Command  {
         if(!file_exists($target_file_or_folder_path))
         {
 
-            /* If file/folder is available in WP image */
-            if(($wp_image_mu_plugin_file_or_folder = path_in_image('mu-plugins', $file_or_folder))!==false)
+            /* If we can use symlinks AND
+             file/folder is available in WP image */
+            if(!$no_symlink && ($wp_image_mu_plugin_file_or_folder = path_in_image('mu-plugins', $file_or_folder))!==false)
             {
                 /* Creating symlink to "simulate" mu-plugin installation */
                 if(!symlink($wp_image_mu_plugin_file_or_folder, $target_file_or_folder_path))
@@ -113,6 +115,10 @@ class EPFL_MUPlugin_Command  {
 	 * : One or more plugins to install. Accepts a path to a mu-plugin file (file with all mu-plugin code or
 	 * loader for others files). In case of a loader, use --folder parameter too
 	 *
+     * [--nosymlink]
+	 * : If set, plugin is installed by copying/downloading files instead of creating a symlink 
+	 * if exists in WP image
+     * 
 	 * [--folder=<folder>]
 	 * : Use this if mu-plugin contains a PHP file that "loads" several resources presents in a folder. Path to folder
 	 * must be given
@@ -120,17 +126,27 @@ class EPFL_MUPlugin_Command  {
 	 */
     public function install( $args, $assoc_args ) {
 
+        $no_symlink = false;
+		
+		if(array_key_exists('nosymlink', $assoc_args))
+		{
+			$no_symlink = true;
+
+			/* We remove param to avoid errors when calling parent func */
+			unset($assoc_args['nosymlink']);
+        }
+        
         /* Looping through mu-plugins to install */
         foreach($args as $mu_plugin_file_path)
         {
             /* Installing file */
-            $this->install_element($mu_plugin_file_path);
+            $this->install_element($mu_plugin_file_path, $no_symlink);
 
             /* If there's also a folder to handle, */
             if(array_key_exists('folder', $assoc_args) && $assoc_args['folder'] != "")
             {
                 /* We install folder for mu-plugin */
-                $this->install_element($assoc_args['folder']);
+                $this->install_element($assoc_args['folder'], $no_symlink);
             }
 
         } /* END looping through given mu-plugins */
