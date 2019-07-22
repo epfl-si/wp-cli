@@ -57,13 +57,13 @@ class EPFL_Theme_Command extends \Theme_Command  {
 
         $no_symlink = false;
 		
-		if(array_key_exists('nosymlink', $assoc_args))
-		{
-			$no_symlink = true;
+        if(array_key_exists('nosymlink', $assoc_args))
+        {
+        $no_symlink = true;
 
-			/* We remove param to avoid errors when calling parent func */
-			unset($assoc_args['nosymlink']);
-		}
+            /* We remove param to avoid errors when calling parent func */
+            unset($assoc_args['nosymlink']);
+        }
 
         /* Looping through themes to install */
         foreach ($args as $theme_name )

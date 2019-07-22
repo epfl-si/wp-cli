@@ -168,12 +168,12 @@ class EPFL_Core_Command extends \Core_Command {
 
         $no_symlink = false;
 		
-		if(array_key_exists('nosymlink', $assoc_args))
-		{
-			$no_symlink = true;
+        if(array_key_exists('nosymlink', $assoc_args))
+        {
+            $no_symlink = true;
 
-			/* We remove param to avoid errors when calling parent func */
-			unset($assoc_args['nosymlink']);
+            /* We remove param to avoid errors when calling parent func */
+            unset($assoc_args['nosymlink']);
         }
         
         /* We first call parent install function to proceed to basic install */
