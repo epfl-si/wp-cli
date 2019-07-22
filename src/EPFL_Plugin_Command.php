@@ -15,13 +15,17 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
     var $DONT_USE_VERSION_FROM_IMAGE = array("polylang");
 
     /**
-	 * Install one or more plugins.
+	 * Install one or more plugins. If found in WP image, a symlink is created.
 	 *
 	 * ## OPTIONS
 	 *
 	 * <plugin|zip|url>...
 	 * : One or more plugins to install. Accepts a plugin slug, the path to a local zip file, or a URL to a remote zip file.
 	 *
+	 * [--nosymlink]
+	 * : If set, plugin is installed by copying/downloading files instead of creating a symlink 
+	 * if exists in WP image
+	 * 
 	 * [--version=<version>]
 	 * : If set, get that particular version from wordpress.org, instead of the
 	 * stable version.
@@ -95,6 +99,16 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 	 */
     public function install( $args, $assoc_args ) {
 
+		$no_symlink = false;
+		
+		if(array_key_exists('nosymlink', $assoc_args))
+		{
+			$no_symlink = true;
+
+			/* We remove param to avoid errors when calling parent func */
+			unset($assoc_args['nosymlink']);
+		}
+
         /* Looping through plugins to install */
         foreach($args as $plugin_name)
         {
@@ -105,9 +119,12 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
                 $extracted_plugin_name = extract_name_from_package($plugin_name);
 
-                /* If plugin is available in WP image AND is not in the "don't use" list */
+				/* If plugin is available in WP image 
+				AND is not in the "don't use" list 
+				AND we can create symlinks */
                 if(path_in_image('plugins', $extracted_plugin_name)!==false &&
-                   !in_array($extracted_plugin_name, $this->DONT_USE_VERSION_FROM_IMAGE))
+				   !in_array($extracted_plugin_name, $this->DONT_USE_VERSION_FROM_IMAGE) && 
+				   !$no_symlink)
                 {
                     /* We change URL by plugin short name so it will installed as symlink below */
                     $plugin_name = $extracted_plugin_name;
@@ -121,14 +138,15 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
             /* Looking if plugin is already installed. We cannot call "parent::is_installed()" because
              it just halts process with 1 or 0 to tell plugin installation status... */
-            $response = \WP_CLI::launch_self( 'theme is-installed', array($plugin_name), array(), false, true );
+            $response = \WP_CLI::launch_self( 'plugin is-installed', array($plugin_name), array(), false, true );
 
             /* If plugin is not installed */
             if($response->return_code == 1)
             {
 
-                /* If plugin is available in WP image */
-                if(($wp_image_plugin_folder = path_in_image('plugins', $plugin_name))!==false)
+				/* If plugin is available in WP image 
+				AND we can create symlinks */
+                if(!$no_symlink && ($wp_image_plugin_folder = path_in_image('plugins', $plugin_name))!==false)
                 {
 
                     /* Creating symlink to "simulate" plugin installation */

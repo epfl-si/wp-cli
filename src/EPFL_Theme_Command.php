@@ -13,13 +13,17 @@ namespace EPFL_WP_CLI;
 class EPFL_Theme_Command extends \Theme_Command  {
 
    /**
-	 * Install one or more themes.
+	 * Install one or more themes. If found in WP image, a symlink is created.
 	 *
 	 * ## OPTIONS
 	 *
 	 * <theme|zip|url>...
 	 * : One or more themes to install. Accepts a theme slug, the path to a local zip file, or a URL to a remote zip file.
 	 *
+     * [--nosymlink]
+	 * : If set, plugin is installed by copying/downloading files instead of creating a symlink 
+	 * if exists in WP image
+     * 
 	 * [--version=<version>]
 	 * : If set, get that particular version from wordpress.org, instead of the
 	 * stable version.
@@ -51,6 +55,16 @@ class EPFL_Theme_Command extends \Theme_Command  {
 	 */
     public function install( $args, $assoc_args ) {
 
+        $no_symlink = false;
+		
+		if(array_key_exists('nosymlink', $assoc_args))
+		{
+			$no_symlink = true;
+
+			/* We remove param to avoid errors when calling parent func */
+			unset($assoc_args['nosymlink']);
+		}
+
         /* Looping through themes to install */
         foreach ($args as $theme_name )
         {
@@ -61,8 +75,10 @@ class EPFL_Theme_Command extends \Theme_Command  {
 
                 $extracted_theme_name = extract_name_from_package($theme_name);
 
-                /* If theme is available in WP image AND is not in the "don't use" list */
-                if(path_in_image('themes', $extracted_theme_name) !== false)
+                /* If theme is available in WP image 
+                AND is not in the "don't use" list 
+                AND we can create symlinks */
+                if(!$no_symlink && path_in_image('themes', $extracted_theme_name) !== false)
                 {
                     /* We change URL by theme short name so it will installed as symlink below */
                     $theme_name = $extracted_theme_name;
@@ -82,8 +98,9 @@ class EPFL_Theme_Command extends \Theme_Command  {
             if($response->return_code == 1)
             {
 
-                /* If theme is available in WP image */
-                if(($wp_image_theme_folder = path_in_image('themes', $theme_name)) !== false)
+                /* If theme is available in WP image
+                AND we can create symlinks */
+                if(!$no_symlink && ($wp_image_theme_folder = path_in_image('themes', $theme_name)) !== false)
                 {
                     /* Creating symlink to "simulate" theme installation */
                     if(symlink($wp_image_theme_folder, ABSPATH . 'wp-content/themes/'. $theme_name))
@@ -113,7 +130,7 @@ class EPFL_Theme_Command extends \Theme_Command  {
                 }
 
             }
-            else /* Plugin is already installed */
+            else /* Theme is already installed */
             {
                 /* We call parent function to do remaining things if needed*/
                 parent::install(array($theme_name), $assoc_args);

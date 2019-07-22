@@ -4,7 +4,7 @@
  *
  * @author  Lucien Chaboudez <lucien.chaboudez@epfl.ch>
  * @package epfl-idevelop/wp-cli
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 namespace EPFL_WP_CLI;
