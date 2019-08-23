@@ -165,7 +165,7 @@ class EPFL_Theme_Command extends \Theme_Command  {
 	 *
 	 * @alias uninstall
 	 */
-    public function delete( $args )
+    public function delete( $args, $assoc_args )
     {
         /* Looping through themes to install */
         foreach ( $this->fetcher->get_many( $args ) as $theme )
@@ -210,7 +210,7 @@ class EPFL_Theme_Command extends \Theme_Command  {
                 {
                     \WP_CLI::log("Theme ".$theme_name. " is a regular one");
                     /* We call parent func to do the job */
-                    parent::delete(array($theme_name));
+                    parent::delete(array($theme_name), $assoc_args);
                 }
             }
             else
