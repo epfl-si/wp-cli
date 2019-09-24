@@ -140,7 +140,7 @@ class EPFL_Theme_Command extends \Theme_Command  {
     }
 
 
-
+    // NOTE: $assoc_args parameter has a default value to have backward compatibility with WPCLI 1.5.x
     /**
 	 * Delete one or more themes.
 	 *
@@ -165,7 +165,7 @@ class EPFL_Theme_Command extends \Theme_Command  {
 	 *
 	 * @alias uninstall
 	 */
-    public function delete( $args, $assoc_args )
+    public function delete( $args, $assoc_args=array() )
     {
         /* Looping through themes to install */
         foreach ( $this->fetcher->get_many( $args ) as $theme )

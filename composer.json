@@ -7,10 +7,10 @@
         "issues": "https://github.com/epfl-idevelop/wp-cli/issues"
     },
     "require": {
-       "wp-cli/wp-cli": "~1.5.0 || ^2",
-       "wp-cli/extension-command": "^1.1 || ^2",
-       "wp-cli/config-command": "^1 || ^2",
-       "wp-cli/core-command": "^1 || ^2"
+       "wp-cli/wp-cli": "^2",
+       "wp-cli/extension-command": "^2",
+       "wp-cli/config-command": "^2",
+       "wp-cli/core-command": "^2"
     },
     "license": "MIT",
     "authors": [
