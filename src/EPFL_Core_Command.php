@@ -3,6 +3,7 @@
 namespace EPFL_WP_CLI;
 
 define("EPFL_WP_IMAGE_PATH", "/wp/");
+define('EPFL_WP_DEFAULT_VERSION', '4');
 
 /**
  * Manage WordPress Core installation with symlinks
@@ -133,6 +134,9 @@ class EPFL_Core_Command extends \Core_Command {
 	 *
 	 * ## OPTIONS
 	 *
+     * [--wpversion=<version>]
+     * : WordPress version to install, by default, it's 4.x.x defined in image. THIS OPTION WON'T BE USED IF --nosymlink IS GIVEN
+     * 
      * [--nosymlink]
 	 * : If set, plugin is installed by copying/downloading files instead of creating a symlink 
 	 * if exists in WP image
@@ -167,7 +171,8 @@ class EPFL_Core_Command extends \Core_Command {
     public function install( $args, $assoc_args ) {
 
         $no_symlink = false;
-		
+        
+        /* Normal install, without symlinks */
         if(array_key_exists('nosymlink', $assoc_args))
         {
             $no_symlink = true;
@@ -175,17 +180,51 @@ class EPFL_Core_Command extends \Core_Command {
             /* We remove param to avoid errors when calling parent func */
             unset($assoc_args['nosymlink']);
         }
+        else /* Symlinked install, so we can choose version */
+        {
+
+            if(array_key_exists('wpversion', $assoc_args))
+            {
+                /* Version will be like X.X.X */
+                $version = $assoc_args['wpversion'];
+                
+                /* We remove param to avoid errors when calling parent func */
+                unset($assoc_args['wpversion']);
+            }
+            else
+            {
+                $version = EPFL_WP_DEFAULT_VERSION;
+            }
+
+            /* it will look like /wp/5.2.2  */
+            $path_to_version = EPFL_WP_IMAGE_PATH.$version;
+
+            /* We first check that wished WordPress version is present in image */
+            if(!file_exists($path_to_version))
+            {
+                \WP_CLI::error("Requested WordPress version (".$version.") is not in image");
+            }
+
+            /* If we have a link named with the major version number pointing on the full asked version,
+            ex: 5 -> 5.2.2
+            In this case we will use 5 instead of 5.2.2 */
+            $path_to_major_version = EPFL_WP_IMAGE_PATH.$version[0];
+            if(file_exists($path_to_major_version) && readlink($path_to_major_version)==$version)
+            {
+                $path_to_version = $path_to_major_version;
+            }
+        }
         
-        /* We first call parent install function to proceed to basic install */
+        /* Then, we call parent install function to proceed to basic install */
         parent::install($args, $assoc_args);
 
         /* If install has been correctly done 
         AND we can use symlinks 
         AND WordPress image is present,  */
-        if(is_blog_installed() && !$no_symlink && file_exists(EPFL_WP_IMAGE_PATH))
+        if(is_blog_installed() && !$no_symlink)
         {
             /****** 1. Symlinks creation ******/
-            $this->symlink();
+            $this->symlink(array('path_to_version' => $path_to_version));
 
             /****** 2. Files modifications  ******/
 
@@ -239,11 +278,21 @@ class EPFL_Core_Command extends \Core_Command {
 
         \WP_CLI::debug("---- Creating symlinks ----");
 
+        /* We first create symlink to access desired version */
+        if(!symlink($args['path_to_version'], ABSPATH."wp"))
+        {
+            \WP_CLI::error("Cannot create symlink on WP image '".$args['path_to_version']."'", true);
+        }
+
+        /* Saving current working directory and changing to go into directory where WordPress is installed. 
+        This will be then easier to create symlinks  */
+        $current_wd = getcwd();
+        chdir(ABSPATH);
 
         foreach($to_symlink as $symlink)
         {
-            $site_element       = ABSPATH. $symlink;
-            $image_element      = EPFL_WP_IMAGE_PATH.$symlink;
+            $site_element       =  $symlink;
+            $image_element      = "wp/".$symlink;
 
             \WP_CLI::debug("Processing $site_element -> $image_element");
 
@@ -262,6 +311,8 @@ class EPFL_Core_Command extends \Core_Command {
                 \WP_CLI::error("Cannot create symlink from '".$site_element."' to '".$image_element."'", true);
             }
         }
+        /* Going back to original working directory  */
+        chdir($current_wd);
     }
 }
 
