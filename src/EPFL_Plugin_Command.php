@@ -11,9 +11,6 @@ namespace EPFL_WP_CLI;
  */
 class EPFL_Plugin_Command extends \Plugin_Command  {
 
-    /* Some plugins may be available in image but we have to install them from WordPress repo instead */
-    var $DONT_USE_VERSION_FROM_IMAGE = array("polylang");
-
     /**
 	 * Install one or more plugins. If found in WP image, a symlink is created.
 	 *
@@ -119,11 +116,8 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
                 $extracted_plugin_name = extract_name_from_package($plugin_name);
 
-				/* If plugin is available in WP image 
-				AND is not in the "don't use" list 
-				AND we can create symlinks */
+				/* If plugin is available in WP image AND we can create symlinks */
                 if(path_in_image('plugins', $extracted_plugin_name)!==false &&
-				   !in_array($extracted_plugin_name, $this->DONT_USE_VERSION_FROM_IMAGE) && 
 				   !$no_symlink)
                 {
                     /* We change URL by plugin short name so it will installed as symlink below */
