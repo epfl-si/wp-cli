@@ -11,9 +11,6 @@ namespace EPFL_WP_CLI;
  */
 class EPFL_Plugin_Command extends \Plugin_Command  {
 
-    /* Some plugins may be available in image but we have to install them from WordPress repo instead */
-    var $DONT_USE_VERSION_FROM_IMAGE = array("polylang");
-
     /**
 	 * Install one or more plugins. If found in WP image, a symlink is created.
 	 *
@@ -119,11 +116,8 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
                 $extracted_plugin_name = extract_name_from_package($plugin_name);
 
-				/* If plugin is available in WP image 
-				AND is not in the "don't use" list 
-				AND we can create symlinks */
+				/* If plugin is available in WP image AND we can create symlinks */
                 if(path_in_image('plugins', $extracted_plugin_name)!==false &&
-				   !in_array($extracted_plugin_name, $this->DONT_USE_VERSION_FROM_IMAGE) && 
 				   !$no_symlink)
                 {
                     /* We change URL by plugin short name so it will installed as symlink below */
@@ -146,11 +140,15 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
 				/* If plugin is available in WP image 
 				AND we can create symlinks */
-                if(!$no_symlink && ($wp_image_plugin_folder = path_in_image('plugins', $plugin_name))!==false)
-                {
+                if(!$no_symlink &&  path_in_image('plugins', $plugin_name)!==false)                {
+
+					/* Saving current working directory and changing to go into directory where WordPress is installed. 
+					This will be then easier to create symlinks  */
+					$current_wd = getcwd();
+					chdir(ABSPATH.'wp-content/plugins/');
 
                     /* Creating symlink to "simulate" plugin installation */
-                    if(symlink($wp_image_plugin_folder, ABSPATH . 'wp-content/plugins/'. $plugin_name))
+                    if(symlink("../../wp/wp-content/plugins/".$plugin_name, $plugin_name))
                     {
                         \WP_CLI::success("Symlink created for ".$plugin_name);
 
@@ -167,7 +165,10 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
                     {
                         /* We display an error and exit */
                         \WP_CLI::error("Error creating symlink for ".$plugin_name, true);
-                    }
+					}
+
+					/* Going back to original working directory  */
+					chdir($current_wd);
 
                 }
                 else /* Plugin is not found in WP image  */

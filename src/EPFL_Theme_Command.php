@@ -100,10 +100,15 @@ class EPFL_Theme_Command extends \Theme_Command  {
 
                 /* If theme is available in WP image
                 AND we can create symlinks */
-                if(!$no_symlink && ($wp_image_theme_folder = path_in_image('themes', $theme_name)) !== false)
+                if(!$no_symlink && path_in_image('themes', $theme_name) !== false)
                 {
+                    /* Saving current working directory and changing to go into directory where WordPress is installed. 
+					This will be then easier to create symlinks  */
+					$current_wd = getcwd();
+                    chdir(ABSPATH.'wp-content/themes/');
+                    
                     /* Creating symlink to "simulate" theme installation */
-                    if(symlink($wp_image_theme_folder, ABSPATH . 'wp-content/themes/'. $theme_name))
+                    if(symlink("../../wp/wp-content/themes/".$theme_name, $theme_name))
                     {
                         \WP_CLI::success("Symlink created for ".$theme_name);
 
@@ -121,6 +126,9 @@ class EPFL_Theme_Command extends \Theme_Command  {
                         /* We display an error and exit */
                         \WP_CLI::error("Error creating symlink for ".$theme_name, true);
                     }
+
+                    /* Going back to original working directory  */
+					chdir($current_wd);
 
                 }
                 else /* Theme is not found in WP image  */

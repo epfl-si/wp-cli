@@ -4,7 +4,7 @@
  *
  * @author  Lucien Chaboudez <lucien.chaboudez@epfl.ch>
  * @package epfl-idevelop/wp-cli
- * @version 1.0.1
+ * @version 1.0.2
  */
 
 namespace EPFL_WP_CLI;
@@ -14,14 +14,12 @@ if ( ! class_exists( 'WP_CLI' ) ) {
 }
 
 if ( version_compare( PHP_VERSION, '5.5', '<' ) ) {
-    WP_CLI::error( sprintf( 'This WP-CLI package requires PHP version %s or higher.', '5.5' ) );
+  \WP_CLI::error( sprintf( 'This WP-CLI package requires PHP version %s or higher.', '5.5' ) );
 }
 if ( version_compare( WP_CLI_VERSION, '1.5.0', '<' ) ) {
-    WP_CLI::error( sprintf( 'This WP-CLI package requires WP-CLI version %s or higher. Please visit %s', '1.5.0', 'https://wp-cli.org/#updating' ) );
+  \WP_CLI::error( sprintf( 'This WP-CLI package requires WP-CLI version %s or higher. Please visit %s', '1.5.0', 'https://wp-cli.org/#updating' ) );
 }
 
-
-define('EPFL_WP_IMAGE_WP_CONTENT_PATH', '/wp/wp-content/');
 
 /**
   * To tell if package is remote
@@ -30,7 +28,7 @@ define('EPFL_WP_IMAGE_WP_CONTENT_PATH', '/wp/wp-content/');
   */
 function is_remote_package($package)
 {
-    return (false !== strpos( $package, '://' ));
+  return (false !== strpos( $package, '://' ));
 }
 
 
@@ -41,7 +39,7 @@ function is_remote_package($package)
   */
 function is_zip_package($package)
 {
-    return pathinfo( $package, PATHINFO_EXTENSION ) === 'zip' && is_file( $package );
+  return pathinfo( $package, PATHINFO_EXTENSION ) === 'zip' && is_file( $package );
 }
 
 
@@ -53,7 +51,7 @@ function is_zip_package($package)
   */
 function extract_name_from_package($package)
 {
-    return preg_replace("/(\..+)+/", "", basename($package));
+  return preg_replace("/(\..+)+/", "", basename($package));
 }
 
 
@@ -65,8 +63,8 @@ function extract_name_from_package($package)
   */
 function path_in_image($wp_content_relative_folder, $element)
 {
-    $path = EPFL_WP_IMAGE_WP_CONTENT_PATH. $wp_content_relative_folder ."/" . $element;
-    return file_exists($path)?$path:false;
+  $path = ABSPATH . "wp/wp-content/" . $wp_content_relative_folder . "/" . $element;
+  return file_exists($path)?$path:false;
 }
 
 
