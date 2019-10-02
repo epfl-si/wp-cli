@@ -146,11 +146,15 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
 				/* If plugin is available in WP image 
 				AND we can create symlinks */
-                if(!$no_symlink && ($wp_image_plugin_folder = path_in_image('plugins', $plugin_name))!==false)
-                {
+                if(!$no_symlink &&  path_in_image('plugins', $plugin_name)!==false)                {
+
+					/* Saving current working directory and changing to go into directory where WordPress is installed. 
+					This will be then easier to create symlinks  */
+					$current_wd = getcwd();
+					chdir(ABSPATH.'wp-content/plugins/');
 
                     /* Creating symlink to "simulate" plugin installation */
-                    if(symlink($wp_image_plugin_folder, ABSPATH . 'wp-content/plugins/'. $plugin_name))
+                    if(symlink("../../wp/wp-content/plugins/".$plugin_name, $plugin_name))
                     {
                         \WP_CLI::success("Symlink created for ".$plugin_name);
 
@@ -167,7 +171,10 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
                     {
                         /* We display an error and exit */
                         \WP_CLI::error("Error creating symlink for ".$plugin_name, true);
-                    }
+					}
+
+					/* Going back to original working directory  */
+					chdir($current_wd);
 
                 }
                 else /* Plugin is not found in WP image  */

@@ -66,15 +66,23 @@ class EPFL_MUPlugin_Command  {
 
             /* If we can use symlinks AND
              file/folder is available in WP image */
-            if(!$no_symlink && ($wp_image_mu_plugin_file_or_folder = path_in_image('mu-plugins', $file_or_folder))!==false)
+            if(!$no_symlink && path_in_image('mu-plugins', $file_or_folder)!==false)
             {
+                /* Saving current working directory and changing to go into directory where WordPress is installed. 
+                This will be then easier to create symlinks  */
+                $current_wd = getcwd();
+                chdir(ABSPATH.'wp-content/mu-plugins/');
+
                 /* Creating symlink to "simulate" mu-plugin installation */
-                if(!symlink($wp_image_mu_plugin_file_or_folder, $target_file_or_folder_path))
+                if(!symlink("../../wp/wp-content/mu-plugins/".$file_or_folder, $file_or_folder))
                 {
                     \WP_CLI::error("Error creating symlink for ".$file_or_folder, true);
                 }
 
                 \WP_CLI::success("Symlink created for ".$file_or_folder);
+
+                /* Going back to original working directory  */
+                chdir($current_wd);
 
             }
             else /* file/folder is not part of WP image */
