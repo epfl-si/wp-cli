@@ -237,7 +237,7 @@ class EPFL_Core_Command extends \Core_Command {
             $this->delete_or_copy_original_file_folder($index);
 
             $index_content = str_replace("require( dirname( __FILE__ ) . '/wp-blog-header.php' );",
-                                         "require_once('/wp/wp-blog-header.php');", $index_content);
+                                         "require_once('wp/wp-blog-header.php');", $index_content);
             $this->update_file_content($index, $index_content);
 
 
