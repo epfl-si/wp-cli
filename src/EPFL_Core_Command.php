@@ -281,7 +281,7 @@ class EPFL_Core_Command extends \Core_Command {
         /* We first create symlink to access desired version */
         if(!symlink($assoc_args['path_to_version'], ABSPATH."wp"))
         {
-            \WP_CLI::error("Cannot create symlink on WP image '".$args['path_to_version']."'", true);
+            \WP_CLI::error("Cannot create symlink on WP image '".$assoc_args['path_to_version']."'", true);
         }
 
         /* Saving current working directory and changing to go into directory where WordPress is installed. 
