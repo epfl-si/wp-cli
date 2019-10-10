@@ -245,11 +245,13 @@ class EPFL_Core_Command extends \Core_Command {
             \WP_CLI::debug("Processing $wp_config");
 
             $wp_config_content = $this->read_file_content($wp_config);
-            $this->delete_or_copy_original_file_folder($wp_config);
-            $wp_config_content = str_replace("table_prefix = 'wp_';",
-                                             "table_prefix = 'wp_';\n".
-                                             "define('WP_CONTENT_DIR', '".ABSPATH."wp-content');", $wp_config_content);
-            $this->update_file_content($wp_config, $wp_config_content);
+            if (FALSE === strpos($wp_config_content, 'WP_CONTENT_DIR')) {
+                $this->delete_or_copy_original_file_folder($wp_config);
+                $wp_config_content = str_replace("table_prefix = 'wp_';",
+                                                 "table_prefix = 'wp_';\n".
+                                                 "define('WP_CONTENT_DIR', '".ABSPATH."wp-content');", $wp_config_content);
+                $this->update_file_content($wp_config, $wp_config_content);
+            }
         }
     }
 
