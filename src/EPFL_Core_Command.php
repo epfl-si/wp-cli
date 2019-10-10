@@ -274,6 +274,7 @@ class EPFL_Core_Command extends \Core_Command {
                 "wp-login.php",
                 "wp-settings.php",
                 /* Folders*/
+                "wp-admin",
                 "wp-includes"
                 );
 
