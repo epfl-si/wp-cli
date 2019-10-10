@@ -224,7 +224,7 @@ class EPFL_Core_Command extends \Core_Command {
         if(is_blog_installed() && !$no_symlink)
         {
             /****** 1. Symlinks creation ******/
-            $this->symlink(array('path_to_version' => $path_to_version));
+            $this->symlink(array(), array('path_to_version' => $path_to_version));
 
             /****** 2. Files modifications  ******/
 
@@ -279,7 +279,7 @@ class EPFL_Core_Command extends \Core_Command {
         \WP_CLI::debug("---- Creating symlinks ----");
 
         /* We first create symlink to access desired version */
-        if(!symlink($args['path_to_version'], ABSPATH."wp"))
+        if(!symlink($assoc_args['path_to_version'], ABSPATH."wp"))
         {
             \WP_CLI::error("Cannot create symlink on WP image '".$args['path_to_version']."'", true);
         }
