@@ -282,7 +282,7 @@ class EPFL_Core_Command extends \Core_Command {
         \WP_CLI::debug("---- Creating symlinks ----");
 
         /* We first create symlink to access desired version */
-        if(!symlink($assoc_args['path_to_version'], ABSPATH."wp"))
+        if(!$this->ensure_symlink($assoc_args['path_to_version'], ABSPATH."wp",  /* $remove_if_needed = */ TRUE))
         {
             \WP_CLI::error("Cannot create symlink on WP image '".$assoc_args['path_to_version']."'", true);
         }
@@ -301,21 +301,56 @@ class EPFL_Core_Command extends \Core_Command {
 
             if(!file_exists($image_element))
             {
-                \WP_CLI::warning("Image element doesn't exists (".$image_element."), skipping site symlink procedure", true);
+                \WP_CLI::warning("Image element doesn't exist (".$image_element."), skipping site symlink procedure", true);
 
                 return;
             }
 
-            /* We rename file/folder if requested, or delete it */
-            $this->delete_or_copy_original_file_folder($site_element, true);
-
-            if(!symlink($image_element, $site_element))
+            if(!$this->ensure_symlink($image_element, $site_element, /* $remove_if_needed = */ TRUE))
             {
                 \WP_CLI::error("Cannot create symlink from '".$site_element."' to '".$image_element."'", true);
             }
         }
         /* Going back to original working directory  */
         chdir($current_wd);
+    }
+
+    private function ensure_symlink ($from, $to, $remove_if_needed=FALSE) {
+        if (@readlink($to) === $from) {
+            \WP_CLI::debug("$to is already a symlink to $from");
+            return TRUE;
+        }
+        if ($remove_if_needed) {
+            $operation = null;
+            if (@readlink($to)) {
+                $operation = "unlink() symlink $to";
+                $success = unlink($to);
+            } elseif (is_dir($to)) {
+                $operation = "rmdir($to)";
+                $success = rmdir($to);
+            } else if (is_file($to)) {
+                $operation = "unlink($to)";
+                $success = unlink($to);
+            } else if (file_exists($to)) {
+                \WP_CLI::warning("Unable to determine type of $to: " .
+                                 posix_strerror(posix_get_last_error()));
+                return FALSE;
+            }
+            if ($operation) {
+                if ($success) {
+                    \WP_CLI::debug($operation);
+                } else {
+                    \WP_CLI::warning("Cannot $operation: " . posix_strerror(posix_get_last_error()));
+                    return FALSE;
+                }
+            }
+        }
+        \WP_CLI::debug("symlink($from, $to)");
+        if (! symlink($from, $to)) {
+            \WP_CLI::warning("Cannot symlink($from, $to): " . posix_strerror(posix_get_last_error()));
+            return FALSE;
+        }
+        return TRUE;
     }
 }
 
