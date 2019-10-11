@@ -51,7 +51,7 @@ class EPFL_Core_Command extends \Core_Command {
         }
         else /* We're not debugging so we delete the file */
         {
-            $this->delete_file_folder($source);
+            $this->delete_recursively_file_folder($source);
         }
     }
 
@@ -77,7 +77,7 @@ class EPFL_Core_Command extends \Core_Command {
     }
 
     /* Deletes a file or folder and handles errors */
-    private function delete_file_folder($path)
+    private function delete_recursively_file_folder($path)
     {
         /* If we have to delete a file */
         if (!is_dir($path))
@@ -86,6 +86,7 @@ class EPFL_Core_Command extends \Core_Command {
             {
                 \WP_CLI::warning("Cannot delete '".$path."'", true);
             }
+            return false;
         }
         else /* We have to delete a directory */
         {
@@ -105,12 +106,12 @@ class EPFL_Core_Command extends \Core_Command {
                     }
                     else
                     {
-                         $this->delete_file_folder($path.'/'.$file);
+                         $this->delete_recursively_file_folder($path.'/'.$file);
                     }
                 }
             }
             closedir($dir_handle);
-            rmdir($path);
+            return rmdir($path);
         }
     }
 
@@ -315,6 +316,9 @@ class EPFL_Core_Command extends \Core_Command {
         chdir($current_wd);
     }
 
+
+
+
     private function ensure_symlink ($target, $symlink_path, $remove_if_needed=FALSE) {
         if (@readlink($symlink_path) === $target) {
             \WP_CLI::debug("$symlink_path is already a symlink to $target");
@@ -326,8 +330,8 @@ class EPFL_Core_Command extends \Core_Command {
                 $operation = "unlink() symlink $symlink_path";
                 $success = unlink($symlink_path);
             } elseif (is_dir($symlink_path)) {
-                $operation = "rmdir($symlink_path)";
-                $success = rmdir($symlink_path);
+                $operation = "this->delete_recursively_file_folder($symlink_path)";
+                $success = $this->delete_recursively_file_folder($symlink_path);
             } else if (is_file($symlink_path)) {
                 $operation = "unlink($symlink_path)";
                 $success = unlink($symlink_path);
