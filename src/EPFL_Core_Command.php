@@ -315,6 +315,25 @@ class EPFL_Core_Command extends \Core_Command {
         chdir($current_wd);
     }
 
+
+    private function rm_dir($dir) 
+    {
+        $files = array_diff(scandir($dir), array('.','..'));
+         foreach ($files as $file) 
+         {
+           if(is_dir("$dir/$file"))
+           {
+               $this->rm_dir("$dir/$file");
+           }
+           else
+           {
+               unlink("$dir/$file");
+           }
+         }
+         return rmdir($dir);
+    }
+
+
     private function ensure_symlink ($target, $symlink_path, $remove_if_needed=FALSE) {
         if (@readlink($symlink_path) === $target) {
             \WP_CLI::debug("$symlink_path is already a symlink to $target");
@@ -326,8 +345,8 @@ class EPFL_Core_Command extends \Core_Command {
                 $operation = "unlink() symlink $symlink_path";
                 $success = unlink($symlink_path);
             } elseif (is_dir($symlink_path)) {
-                $operation = "rmdir($symlink_path)";
-                $success = rmdir($symlink_path);
+                $operation = "this->rm_dir($symlink_path)";
+                $success = $this->rm_dir($symlink_path);
             } else if (is_file($symlink_path)) {
                 $operation = "unlink($symlink_path)";
                 $success = unlink($symlink_path);
