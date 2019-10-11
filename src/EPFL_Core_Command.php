@@ -315,24 +315,24 @@ class EPFL_Core_Command extends \Core_Command {
         chdir($current_wd);
     }
 
-    private function ensure_symlink ($from, $to, $remove_if_needed=FALSE) {
-        if (@readlink($to) === $from) {
-            \WP_CLI::debug("$to is already a symlink to $from");
+    private function ensure_symlink ($target, $symlink_path, $remove_if_needed=FALSE) {
+        if (@readlink($symlink_path) === $target) {
+            \WP_CLI::debug("$symlink_path is already a symlink to $target");
             return TRUE;
         }
         if ($remove_if_needed) {
             $operation = null;
-            if (@readlink($to)) {
-                $operation = "unlink() symlink $to";
-                $success = unlink($to);
-            } elseif (is_dir($to)) {
-                $operation = "rmdir($to)";
-                $success = rmdir($to);
-            } else if (is_file($to)) {
-                $operation = "unlink($to)";
-                $success = unlink($to);
-            } else if (file_exists($to)) {
-                \WP_CLI::warning("Unable to determine type of $to: " .
+            if (@readlink($symlink_path)) {
+                $operation = "unlink() symlink $symlink_path";
+                $success = unlink($symlink_path);
+            } elseif (is_dir($symlink_path)) {
+                $operation = "rmdir($symlink_path)";
+                $success = rmdir($symlink_path);
+            } else if (is_file($symlink_path)) {
+                $operation = "unlink($symlink_path)";
+                $success = unlink($symlink_path);
+            } else if (file_exists($symlink_path)) {
+                \WP_CLI::warning("Unable to determine type of $symlink_path: " .
                                  posix_strerror(posix_get_last_error()));
                 return FALSE;
             }
@@ -345,9 +345,9 @@ class EPFL_Core_Command extends \Core_Command {
                 }
             }
         }
-        \WP_CLI::debug("symlink($from, $to)");
-        if (! symlink($from, $to)) {
-            \WP_CLI::warning("Cannot symlink($from, $to): " . posix_strerror(posix_get_last_error()));
+        \WP_CLI::debug("symlink($target, $symlink_path)");
+        if (! symlink($target, $symlink_path)) {
+            \WP_CLI::warning("Cannot symlink($target, $symlink_path): " . posix_strerror(posix_get_last_error()));
             return FALSE;
         }
         return TRUE;
