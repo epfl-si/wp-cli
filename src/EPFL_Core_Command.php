@@ -224,7 +224,7 @@ class EPFL_Core_Command extends \Core_Command {
         if(is_blog_installed() && !$no_symlink)
         {
             /****** 1. Symlinks creation ******/
-            $this->symlink(array('path_to_version' => $path_to_version));
+            $this->symlink(array(), array('path_to_version' => $path_to_version));
 
             /****** 2. Files modifications  ******/
 
@@ -282,9 +282,9 @@ class EPFL_Core_Command extends \Core_Command {
         \WP_CLI::debug("---- Creating symlinks ----");
 
         /* We first create symlink to access desired version */
-        if(!symlink($args['path_to_version'], ABSPATH."wp"))
+        if(!$this->ensure_symlink($assoc_args['path_to_version'], ABSPATH."wp",  /* $remove_if_needed = */ TRUE))
         {
-            \WP_CLI::error("Cannot create symlink on WP image '".$args['path_to_version']."'", true);
+            \WP_CLI::error("Cannot create symlink on WP image '".$assoc_args['path_to_version']."'", true);
         }
 
         /* Saving current working directory and changing to go into directory where WordPress is installed. 
@@ -301,21 +301,56 @@ class EPFL_Core_Command extends \Core_Command {
 
             if(!file_exists($image_element))
             {
-                \WP_CLI::warning("Image element doesn't exists (".$image_element."), skipping site symlink procedure", true);
+                \WP_CLI::warning("Image element doesn't exist (".$image_element."), skipping site symlink procedure", true);
 
                 return;
             }
 
-            /* We rename file/folder if requested, or delete it */
-            $this->delete_or_copy_original_file_folder($site_element, true);
-
-            if(!symlink($image_element, $site_element))
+            if(!$this->ensure_symlink($image_element, $site_element, /* $remove_if_needed = */ TRUE))
             {
                 \WP_CLI::error("Cannot create symlink from '".$site_element."' to '".$image_element."'", true);
             }
         }
         /* Going back to original working directory  */
         chdir($current_wd);
+    }
+
+    private function ensure_symlink ($target, $symlink_path, $remove_if_needed=FALSE) {
+        if (@readlink($symlink_path) === $target) {
+            \WP_CLI::debug("$symlink_path is already a symlink to $target");
+            return TRUE;
+        }
+        if ($remove_if_needed) {
+            $operation = null;
+            if (@readlink($symlink_path)) {
+                $operation = "unlink() symlink $symlink_path";
+                $success = unlink($symlink_path);
+            } elseif (is_dir($symlink_path)) {
+                $operation = "rmdir($symlink_path)";
+                $success = rmdir($symlink_path);
+            } else if (is_file($symlink_path)) {
+                $operation = "unlink($symlink_path)";
+                $success = unlink($symlink_path);
+            } else if (file_exists($symlink_path)) {
+                \WP_CLI::warning("Unable to determine type of $symlink_path: " .
+                                 posix_strerror(posix_get_last_error()));
+                return FALSE;
+            }
+            if ($operation) {
+                if ($success) {
+                    \WP_CLI::debug($operation);
+                } else {
+                    \WP_CLI::warning("Cannot $operation: " . posix_strerror(posix_get_last_error()));
+                    return FALSE;
+                }
+            }
+        }
+        \WP_CLI::debug("symlink($target, $symlink_path)");
+        if (! symlink($target, $symlink_path)) {
+            \WP_CLI::warning("Cannot symlink($target, $symlink_path): " . posix_strerror(posix_get_last_error()));
+            return FALSE;
+        }
+        return TRUE;
     }
 }
 
