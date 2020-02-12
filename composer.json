@@ -1,10 +1,10 @@
 {
-    "name": "epfl-idevelop/wp-cli",
+    "name": "epfl-si/wp-cli",
     "description": "An extension to existing WPCLI commands to fit EPFL's needs",
     "type": "wp-cli-package",
-    "homepage": "https://github.com/epfli-develop/wp-cli",
+    "homepage": "https://github.com/epfl-si/wp-cli",
     "support": {
-        "issues": "https://github.com/epfl-idevelop/wp-cli/issues"
+        "issues": "https://github.com/epfl-si/wp-cli/issues"
     },
     "require": {
        "wp-cli/wp-cli": "~1.5.0 || ^2",
