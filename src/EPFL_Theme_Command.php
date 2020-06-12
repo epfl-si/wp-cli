@@ -1,6 +1,7 @@
 <?php
 
 namespace EPFL_WP_CLI;
+require_once(__DIR__ . "/command_utils.inc");
 
 
 /**
@@ -231,5 +232,5 @@ class EPFL_Theme_Command extends \Theme_Command  {
 
 }
 
-/* We override existing commands with extended one */
+nuke_command("theme");
 \WP_CLI::add_command( 'theme', 'EPFL_WP_CLI\EPFL_Theme_Command' );

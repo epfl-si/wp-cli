@@ -1,6 +1,7 @@
 <?php
 
 namespace EPFL_WP_CLI;
+require_once(__DIR__ . "/command_utils.inc");
 
 /**
  * Manage plugin installation with symlinks
@@ -189,5 +190,5 @@ class EPFL_Plugin_Command extends \Plugin_Command  {
 
 }
 
-/* We override existing commands with extended one */
-\WP_CLI::add_command( 'plugin', 'EPFL_WP_CLI\EPFL_Plugin_Command' );
+nuke_command("plugin");
+\WP_CLI::add_command( 'plugin', '\EPFL_WP_CLI\EPFL_Plugin_Command' );

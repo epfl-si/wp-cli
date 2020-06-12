@@ -163,5 +163,5 @@ class EPFL_MUPlugin_Command  {
 
 }
 
-/* We add commands to existing ones */
+/* We add this command to existing ones */
 \WP_CLI::add_command( 'mu-plugin', 'EPFL_WP_CLI\EPFL_MUPlugin_Command' );

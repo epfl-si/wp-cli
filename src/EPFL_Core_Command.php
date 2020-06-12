@@ -1,6 +1,7 @@
 <?php
 
 namespace EPFL_WP_CLI;
+require_once(__DIR__ . "/command_utils.inc");
 
 define("EPFL_WP_IMAGE_PATH", "/wp/");
 define('EPFL_WP_DEFAULT_VERSION', '4');
@@ -358,5 +359,5 @@ class EPFL_Core_Command extends \Core_Command {
     }
 }
 
-/* We override existing commands with extended one */
+nuke_command("core");
 \WP_CLI::add_command( 'core', 'EPFL_WP_CLI\EPFL_Core_Command' );
