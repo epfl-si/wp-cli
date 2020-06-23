@@ -174,7 +174,7 @@ class EPFL_Theme_Command extends \Theme_Command  {
 	 *
 	 * @alias uninstall
 	 */
-    public function delete( $args )
+    public function delete( $args,  $assoc_args )
     {
         /* Looping through themes to install */
         foreach ( $this->fetcher->get_many( $args ) as $theme )
