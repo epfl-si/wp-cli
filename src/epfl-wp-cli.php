@@ -3,7 +3,7 @@
  * EPFL WPCLI extended commands
  *
  * @author  Lucien Chaboudez <lucien.chaboudez@epfl.ch>
- * @package epfl-idevelop/wp-cli
+ * @package epfl-si/wp-cli
  * @version 1.0.3
  */
 
